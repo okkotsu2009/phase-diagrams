@@ -1,0 +1,252 @@
+，<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase Diagrams of Learning Dynamics in tanh Neural Networks</title>
+    <meta name="robots" content="noindex, nofollow">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax for rendering LaTeX math formulas -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc; /* Slate-50 */
+        }
+        /* Modal Transition */
+        #lightbox {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        /* Image Hover Effects */
+        .phase-img-container img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .phase-img-container:hover img {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-blue-200">
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-slate-200 pt-16 pb-12 px-6 shadow-sm">
+        <div class="max-w-5xl mx-auto text-center">
+            <p class="text-sm font-semibold text-blue-600 tracking-widest uppercase mb-3">相図閲覧用</p>
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight mb-6">
+                二層双曲線正接型神経回路網における<br class="hidden md:block">非線形曲率減衰機構の理論的証明
+            </h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-6 py-12">
+        
+        <!-- Experimental Setup Section -->
+        <section class="mb-16">
+            <div class="flex items-center mb-6">
+                <div class="w-1 h-6 bg-blue-600 rounded mr-3"></div>
+                <h2 class="text-2xl font-bold text-slate-900">Experimental Setup <span class="text-lg font-normal text-slate-500 ml-2">実験環境の定義</span></h2>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <p class="text-slate-600 mb-8 leading-relaxed">
+                    本研究では，以下の計28,350通りのモデル環境において，学習の収束と発散の境界を記録した．相図中の紫の点線はカタパルト限界，黒い実線は線形安定限界を表している．先行研究（Lewkowycz et al., 2020）において，この境界は線形モデルで理論導出され，tanh活性化関数下では経験的に両者の間に収まるとされてきた．しかし実際の非線形的な環境下を設定した本グリッドサーチでは，広範な領域で同境界の成立が実証された一方，極小幅かつ小初期値の領域において，カタパルト限界を大きく上回る学習率でも発散しない未開拓の現象を発見した．よって今回，このメカニズムの理論証明を行った．（内容は論文あるいはポスターを参照．）
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Environment Specs -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">モデル・学習環境</h3>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">❖</span>
+                                <div><strong>アーキテクチャ:</strong> 2層 $\tanh$ ネットワーク</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">❖</span>
+                                <div><strong>ターゲット関数:</strong> $y = \sin(kx)$ （サンプル数 $N=200$）</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">❖</span>
+                                <div><strong>最適化手法:</strong> フルバッチ勾配降下法 (損失関数: MSE)</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">❖</span>
+                                <div><strong>初期化手法:</strong><br>
+                                第1層（隠れ層）: 一様分布（初期値 $w$ に基づき，$-w$ から $w$ の範囲でランダムに設定）<br>
+                                第2層（出力層）: Xavier初期化（ネットワーク幅 $N$ に反比例する適切な範囲を持つ一様分布を用い，勾配のスケールを調整）</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">❖</span>
+                                <div><strong>最大エポック数:</strong> 5,000 エポック</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Parameter Search Space -->
+                    <div class="bg-slate-50 rounded-xl p-5 border border-slate-100">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">探索パラメータ空間 <span class="text-xs font-normal text-slate-500 float-right mt-1">計 28,350 試行</span></h3>
+                        <ul class="space-y-4 text-sm text-slate-700">
+                            <li>
+                                <div class="font-medium text-slate-900">ターゲット周波数 $k \in [1, 5]$</div>
+                                <div class="text-slate-500 text-xs mt-1">1, 2, 3, 4, 5 (5段階)</div>
+                            </li>
+                            <li>
+                                <div class="font-medium text-slate-900">初期値スケール $w \in [0.1, 10.0]$</div>
+                                <div class="text-slate-500 text-xs mt-1">公比約1.3の対数分割 (18段階)</div>
+                            </li>
+                            <li>
+                                <div class="font-medium text-slate-900">学習率 $\eta \in [0.0001, 1.0]$</div>
+                                <div class="text-slate-500 text-xs mt-1">公比約1.3の対数分割 (35段階)</div>
+                            </li>
+                            <li>
+                                <div class="font-medium text-slate-900">ネットワーク幅 $N \in [2, 512]$</div>
+                                <div class="text-slate-500 text-xs mt-1">2, 4, 8, 16, 32, 64, 128, 256, 512 (9段階)</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase Diagrams Gallery -->
+        <section>
+            <div class="flex items-center mb-6">
+                <div class="w-1 h-6 bg-blue-600 rounded mr-3"></div>
+                <h2 class="text-2xl font-bold text-slate-900">Phase Diagrams <span class="text-lg font-normal text-slate-500 ml-2">相図ギャラリー</span></h2>
+            </div>
+            
+            <p class="text-sm text-slate-600 mb-8">
+                各ターゲット周波数 $k$ における，初期値 $w$（横軸）と学習率 $\eta$（縦軸）の相図です．<br class="hidden sm:block">
+                画像をタップすると全画面で詳細を確認できます．<br>
+                <span class="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded inline-block mt-2">赤色: 発散 (Diverged) / 青色: 収束 (Survived) / 紫の点線: カタパルト限界 / 黒い実線: 線形安定限界</span>
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- k=1 -->
+                <div class="phase-img-container cursor-pointer group">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <img src="images/k_1_AllWidths_TheoryOverlay.png" alt="Phase Diagram k=1" class="w-full h-auto object-cover" onclick="openLightbox(this.src)">
+                        <div class="p-4 border-t border-slate-100 bg-slate-50">
+                            <h3 class="font-semibold text-slate-800 text-center">ターゲット周波数: $k = 1$</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- k=2 -->
+                <div class="phase-img-container cursor-pointer group">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <img src="images/k_2_AllWidths_TheoryOverlay.png" alt="Phase Diagram k=2" class="w-full h-auto object-cover" onclick="openLightbox(this.src)">
+                        <div class="p-4 border-t border-slate-100 bg-slate-50">
+                            <h3 class="font-semibold text-slate-800 text-center">ターゲット周波数: $k = 2$</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- k=3 -->
+                <div class="phase-img-container cursor-pointer group">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <img src="images/k_3_AllWidths_TheoryOverlay.png" alt="Phase Diagram k=3" class="w-full h-auto object-cover" onclick="openLightbox(this.src)">
+                        <div class="p-4 border-t border-slate-100 bg-slate-50">
+                            <h3 class="font-semibold text-slate-800 text-center">ターゲット周波数: $k = 3$</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- k=4 -->
+                <div class="phase-img-container cursor-pointer group">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <img src="images/k_4_AllWidths_TheoryOverlay.png" alt="Phase Diagram k=4" class="w-full h-auto object-cover" onclick="openLightbox(this.src)">
+                        <div class="p-4 border-t border-slate-100 bg-slate-50">
+                            <h3 class="font-semibold text-slate-800 text-center">ターゲット周波数: $k = 4$</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- k=5 -->
+                <div class="phase-img-container cursor-pointer group">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <img src="images/k_5_AllWidths_TheoryOverlay.png" alt="Phase Diagram k=5" class="w-full h-auto object-cover" onclick="openLightbox(this.src)">
+                        <div class="p-4 border-t border-slate-100 bg-slate-50">
+                            <h3 class="font-semibold text-slate-800 text-center">ターゲット周波数: $k = 5$</h3>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 py-10 mt-16 text-center px-6">
+        <p class="text-slate-400 text-sm mb-2">
+            二層双曲線正接型神経回路網における非線形曲率減衰機構の理論的証明
+        </p>
+        <p class="text-slate-500 text-xs">
+            &copy; 2026 Okkotsu Daiki. All rights reserved.
+        </p>
+    </footer>
+
+    <!-- Fullscreen Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-sm p-4 sm:p-8" onclick="closeLightbox()">
+        
+        <!-- Close Button -->
+        <button class="absolute top-6 right-6 text-slate-300 hover:text-white transition-colors focus:outline-none bg-slate-800/50 hover:bg-slate-700 rounded-full p-2" onclick="closeLightbox()" aria-label="Close Modal">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <!-- Lightbox Image -->
+        <img id="lightbox-img" src="" alt="Zoomed Diagram" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl border border-slate-700" onclick="event.stopPropagation();">
+    </div>
+
+    <!-- Lightbox JavaScript -->
+    <script>
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 背景のスクロールを無効化
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            setTimeout(() => {
+                lightboxImg.src = '';
+            }, 300); // アニメーション終了後にソースをクリア
+            document.body.style.overflow = 'auto'; // スクロールを元に戻す
+        }
+
+        // ESCキーで閉じる
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
